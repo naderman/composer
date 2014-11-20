@@ -5,7 +5,7 @@ Installing branch alaised package from a Composer repository.
     "repositories": [
         {
             "type": "composer",
-            "url": "file://install-branch-alias"
+            "url": "file://install-branch-alias-composer-repo"
         }
     ],
     "require": {
