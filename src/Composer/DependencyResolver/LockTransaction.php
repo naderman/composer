@@ -47,14 +47,6 @@ class LockTransaction extends Transaction
         $this->presentMap = $presentMap;
         $this->unlockableMap = $unlockableMap;
 
-        $this->setResultPackages($pool, $decisions);
-        parent::__construct($this->presentMap, $this->resultPackages['all']);
-
-    }
-
-    // TODO make this a bit prettier instead of the two text indexes?
-    public function setResultPackages(Pool $pool, Decisions $decisions)
-    {
         $this->resultPackages = array('all' => array(), 'non-dev' => array(), 'dev' => array());
         foreach ($decisions as $i => $decision) {
             $literal = $decision[Decisions::DECISION_LITERAL];
@@ -67,6 +59,9 @@ class LockTransaction extends Transaction
                 }
             }
         }
+
+        parent::__construct($this->presentMap, $this->resultPackages['all']);
+
     }
 
     public function setNonDevPackages(LockTransaction $extractionResult)
