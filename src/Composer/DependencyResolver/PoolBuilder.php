@@ -469,16 +469,6 @@ class PoolBuilder
      */
     private function unlockPackage(Request $request, $name)
     {
-        // remove locked package by this name which was already initialized
-        foreach ($request->getLockedPackages() as $lockedPackage) {
-            if (!($lockedPackage instanceof AliasPackage) && $lockedPackage->getName() === $name) {
-                if (false !== $index = array_search($lockedPackage, $this->packages, true)) {
-                    $request->unlockPackage($lockedPackage);
-                    $this->removeLoadedPackage($request, $lockedPackage, $index);
-                }
-            }
-        }
-
         if (
             // if we unfixed a replaced package name, we also need to unfix the replacer itself
             $this->skippedLoad[$name] !== $name
@@ -488,7 +478,23 @@ class PoolBuilder
             $this->unlockPackage($request, $this->skippedLoad[$name]);
         }
 
+        // Unset tracking
         unset($this->skippedLoad[$name], $this->loadedPackages[$name], $this->maxExtendedReqs[$name]);
+
+        // remove locked package by this name which was already initialized
+        foreach ($request->getLockedPackages() as $lockedPackage) {
+            if (!($lockedPackage instanceof AliasPackage) && $lockedPackage->getName() === $name) {
+                if (false !== $index = array_search($lockedPackage, $this->packages, true)) {
+                    $request->unlockPackage($lockedPackage);
+                    $this->removeLoadedPackage($request, $lockedPackage, $index);
+
+                    // Mark this specific package to be loaded from remote again
+                    $this->markPackageNameForLoading($request, $name, new Constraint('==', $lockedPackage->getVersion()));
+                }
+            }
+        }
+
+
     }
 
     private function removeLoadedPackage(Request $request, PackageInterface $package, $index)
