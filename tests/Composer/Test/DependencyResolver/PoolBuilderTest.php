@@ -12,6 +12,7 @@
 
 namespace Composer\Test\DependencyResolver;
 
+use Composer\Config;
 use Composer\IO\NullIO;
 use Composer\Repository\ArrayRepository;
 use Composer\Repository\FilterRepository;
@@ -22,6 +23,7 @@ use Composer\Package\AliasPackage;
 use Composer\Json\JsonFile;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\Version\VersionParser;
+use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositorySet;
 use Composer\Test\TestCase;
 
@@ -53,7 +55,7 @@ class PoolBuilderTest extends TestCase
             $rootAliases[$index]['alias_normalized'] = $parser->normalize($alias['alias']);
         }
 
-        $loader = new ArrayLoader();
+        $loader = new ArrayLoader(null, true);
         $packageIds = array();
         $loadPackage = function ($data) use ($loader, &$packageIds) {
             if (!empty($data['id'])) {
@@ -73,8 +75,17 @@ class PoolBuilderTest extends TestCase
             return $pkg;
         };
 
+        $oldCwd = getcwd();
+        chdir(__DIR__.'/Fixtures/poolbuilder/');
+
         $repositorySet = new RepositorySet($minimumStability, $stabilityFlags, $rootAliases, $rootReferences);
         foreach ($packageRepos as $packages) {
+            if (isset($packages['type'])) {
+                $repo = RepositoryFactory::createRepo(new NullIO, new Config(false), $packages);
+                $repositorySet->addRepository($repo);
+                continue;
+            }
+
             $repo = new ArrayRepository();
             if (isset($packages['canonical']) || isset($packages['only']) || isset($packages['exclude'])) {
                 $options = $packages;
@@ -119,6 +130,8 @@ class PoolBuilderTest extends TestCase
         for ($i = 1, $count = count($pool); $i <= $count; $i++) {
             $result[] = $pool->packageById($i);
         }
+
+        chdir($oldCwd);
 
         $result = array_map(function ($package) use ($packageIds) {
             if ($id = array_search($package, $packageIds, true)) {
