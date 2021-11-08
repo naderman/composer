@@ -77,7 +77,7 @@
     {
         "location": "Composer\\Test\\InstallerTest::testIntegration",
         "message": "preg_match(): Passing null to parameter #4 ($flags) of type int is deprecated",
-        "count": 1640
+        "count": 1656
     },
     {
         "location": "Composer\\Test\\Package\\Archiver\\ArchivableFilesFinderTest::testManualExcludes",
