@@ -4,7 +4,9 @@ Partially updating with deps a root requirement which depends on packages in a s
 --REQUEST--
 {
     "require": {
-        "root/update": "*"
+        "root/update": "*",
+        "symlinked/transitive3": "*",
+        "symlinked/transitive5": "*"
     },
     "locked": [
         {"name": "root/update", "version": "1.0.1", "require": {"symlinked/path-pkg": ">=1.0.1", "symlinked/replaced-pkg": "*"}},
